@@ -12,16 +12,17 @@ export function obterDashboard() {
 
                 ROUND(SUM(quantidade), 2) AS itens,
 
-                ROUND(SUM(total_item), 2) AS faturamento,
+                ROUND(SUM(total_item - desconto), 2) AS faturamento,
 
                 ROUND(
-
-                    SUM(total_item) /
+                    SUM(total_item - desconto) /
                     COUNT(DISTINCT codigo_venda),
-
                     2
+                ) AS ticket_medio,
 
-                ) AS ticket_medio
+                ROUND(SUM(desconto), 2) AS desconto_total,
+
+                ROUND(MAX(total_item - desconto), 2) AS maior_venda
 
             FROM vendas
 

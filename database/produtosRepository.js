@@ -18,13 +18,13 @@ export function obterProdutos() {
 
                 nome_subgrupo,
 
-                ROUND(SUM(quantidade),2) AS quantidade,
+                ROUND(SUM(quantidade), 2) AS quantidade,
 
-                ROUND(SUM(total_item),2) AS faturamento,
+                ROUND(SUM(total_item - desconto), 2) AS faturamento,
 
                 COUNT(DISTINCT codigo_venda) AS pedidos,
 
-                ROUND(AVG(unitario),2) AS preco_medio
+                ROUND(AVG(unitario), 2) AS preco_medio
 
             FROM vendas
 

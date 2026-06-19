@@ -12,7 +12,7 @@ export function obterSetores() {
 
                 nome_subgrupo,
 
-                ROUND(SUM(total_item), 2) AS faturamento,
+                ROUND(SUM(total_item - desconto), 2) AS faturamento,
 
                 COUNT(DISTINCT codigo_venda) AS pedidos,
 
@@ -20,7 +20,7 @@ export function obterSetores() {
 
                 ROUND(
 
-                    SUM(total_item) /
+                    SUM(total_item - desconto) /
                     COUNT(DISTINCT codigo_venda),
 
                     2
