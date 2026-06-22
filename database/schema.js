@@ -19,6 +19,71 @@ export function criarTabelas() {
         `);
 
         // =====================================================
+        // TABELA DE USUÁRIOS
+        // =====================================================
+
+         db.run(`
+             CREATE TABLE IF NOT EXISTS usuarios (
+
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+                usuario TEXT NOT NULL UNIQUE,
+
+                senha TEXT NOT NULL,
+
+                nivel TEXT NOT NULL DEFAULT 'ADMIN',
+
+                ativo INTEGER NOT NULL DEFAULT 1,
+
+                criado_em TEXT DEFAULT CURRENT_TIMESTAMP
+
+            );
+        `);
+
+        db.get(
+
+    "SELECT COUNT(*) AS total FROM usuarios",
+
+    (err, row) => {
+
+        if (err) {
+
+            console.error(err);
+            return;
+
+        }
+
+        if (row.total === 0) {
+
+            db.run(
+
+                `INSERT INTO usuarios
+                (usuario, senha, nivel)
+                VALUES (?,?,?)`,
+
+                [
+
+                    "admin",
+
+                    "admin123",
+
+                    "ADMIN"
+
+                ]
+
+            );
+
+            console.log("👤 Usuário administrador criado.");
+            console.log("Usuário: admin");
+            console.log("Senha: admin123");
+
+        }
+
+    }
+
+);
+
+        // =====================================================
         // TABELA DE VENDAS
         // =====================================================
 
