@@ -8,8 +8,10 @@ const caminhoBanco = process.env.DB_PATH
     ? process.env.DB_PATH
     : bancoOriginal;
 
-// Se estiver usando o Persistent Disk e o banco ainda não existir,
-// copia o banco inicial apenas uma vez.
+// ======================================================
+// PRIMEIRO DEPLOY
+// ======================================================
+
 if (process.env.DB_PATH) {
 
     const pasta = path.dirname(caminhoBanco);
@@ -18,19 +20,47 @@ if (process.env.DB_PATH) {
         fs.mkdirSync(pasta, { recursive: true });
     }
 
+    let copiarBanco = false;
+
     if (!fs.existsSync(caminhoBanco)) {
 
-        console.log("📦 Primeiro deploy detectado.");
+        copiarBanco = true;
+
+    } else {
+
+        try {
+
+            const stat = fs.statSync(caminhoBanco);
+
+            // Se o arquivo estiver muito pequeno,
+            // provavelmente é um banco recém-criado e vazio.
+            if (stat.size < 50000) {
+
+                copiarBanco = true;
+
+            }
+
+        } catch {
+
+            copiarBanco = true;
+
+        }
+
+    }
+
+    if (copiarBanco) {
+
+        console.log("📦 Copiando banco inicial...");
 
         if (fs.existsSync(bancoOriginal)) {
 
             fs.copyFileSync(bancoOriginal, caminhoBanco);
 
-            console.log("✅ Banco inicial copiado para o Persistent Disk.");
+            console.log("✅ Banco copiado para o Persistent Disk.");
 
         } else {
 
-            console.log("⚠ Banco inicial não encontrado.");
+            console.log("❌ Banco inicial não encontrado.");
 
         }
 
