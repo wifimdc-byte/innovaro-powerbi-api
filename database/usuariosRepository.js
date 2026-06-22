@@ -1,5 +1,9 @@
 import db from "./database.js";
 
+// ===========================================
+// BUSCAR USUÁRIO
+// ===========================================
+
 export function buscarUsuario(usuario) {
 
     return new Promise((resolve, reject) => {
@@ -25,6 +29,194 @@ export function buscarUsuario(usuario) {
                     return reject(err);
 
                 resolve(row);
+
+            }
+
+        );
+
+    });
+
+}
+
+// ===========================================
+// LISTAR USUÁRIOS
+// ===========================================
+
+export function listarUsuarios() {
+
+    return new Promise((resolve, reject) => {
+
+        db.all(
+
+            `
+            SELECT
+                id,
+                usuario,
+                nivel,
+                ativo
+            FROM usuarios
+            ORDER BY usuario
+            `,
+
+            [],
+
+            (err, rows) => {
+
+                if (err)
+                    return reject(err);
+
+                resolve(rows);
+
+            }
+
+        );
+
+    });
+
+}
+
+// ===========================================
+// CRIAR USUÁRIO
+// ===========================================
+
+export function criarUsuario(usuario, senha, nivel = "CONSULTA") {
+
+    return new Promise((resolve, reject) => {
+
+        db.run(
+
+            `
+            INSERT INTO usuarios
+            (
+                usuario,
+                senha,
+                nivel
+            )
+            VALUES (?,?,?)
+            `,
+
+            [
+
+                usuario,
+                senha,
+                nivel
+
+            ],
+
+            function (err) {
+
+                if (err)
+                    return reject(err);
+
+                resolve(this.lastID);
+
+            }
+
+        );
+
+    });
+
+}
+
+// ===========================================
+// ALTERAR SENHA
+// ===========================================
+
+export function alterarSenha(id, senha) {
+
+    return new Promise((resolve, reject) => {
+
+        db.run(
+
+            `
+            UPDATE usuarios
+            SET senha = ?
+            WHERE id = ?
+            `,
+
+            [
+
+                senha,
+                id
+
+            ],
+
+            function (err) {
+
+                if (err)
+                    return reject(err);
+
+                resolve(this.changes);
+
+            }
+
+        );
+
+    });
+
+}
+
+// ===========================================
+// ATIVAR / DESATIVAR
+// ===========================================
+
+export function alterarStatus(id, ativo) {
+
+    return new Promise((resolve, reject) => {
+
+        db.run(
+
+            `
+            UPDATE usuarios
+            SET ativo = ?
+            WHERE id = ?
+            `,
+
+            [
+
+                ativo,
+                id
+
+            ],
+
+            function (err) {
+
+                if (err)
+                    return reject(err);
+
+                resolve(this.changes);
+
+            }
+
+        );
+
+    });
+
+}
+
+// ===========================================
+// EXCLUIR USUÁRIO
+// ===========================================
+
+export function excluirUsuario(id) {
+
+    return new Promise((resolve, reject) => {
+
+        db.run(
+
+            `
+            DELETE FROM usuarios
+            WHERE id = ?
+            `,
+
+            [id],
+
+            function (err) {
+
+                if (err)
+                    return reject(err);
+
+                resolve(this.changes);
 
             }
 

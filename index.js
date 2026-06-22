@@ -16,6 +16,7 @@ import fornecedoresRouter from "./routes/fornecedores.js";
 import statusRouter from "./routes/status.js";
 import resumoRouter from "./routes/resumo.js";
 import authRouter from "./routes/auth.js";
+import usuariosRouter from "./routes/usuarios.js";
 
 dotenv.config();
 
@@ -76,6 +77,7 @@ app.use("/fornecedores", fornecedoresRouter);
 app.use("/status", statusRouter);
 app.use("/resumo", resumoRouter);
 app.use("/auth", authRouter);
+app.use("/usuarios", usuariosRouter);
 
 /*
 ==========================================
