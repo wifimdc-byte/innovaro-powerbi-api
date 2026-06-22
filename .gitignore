@@ -1,4 +1,4 @@
 node_modules
 .env
-database/banco.db
+# database/banco.db
 logs
