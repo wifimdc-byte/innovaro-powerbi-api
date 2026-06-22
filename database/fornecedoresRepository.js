@@ -1,8 +1,11 @@
 import db from "./database.js";
+import { montarFiltroLoja } from "./filtroLoja.js";
 
-export function obterFornecedores() {
+export function obterFornecedores(inicio, fim, loja) {
 
     return new Promise((resolve, reject) => {
+
+        const filtro = montarFiltroLoja(loja);
 
         const sql = `
 
@@ -12,7 +15,7 @@ export function obterFornecedores() {
 
                 nome_fornecedor,
 
-                ROUND(SUM(total_item - desconto), 2) AS faturamento,
+                ROUND(SUM(total_item - desconto),2) AS faturamento,
 
                 COUNT(DISTINCT codigo_venda) AS pedidos,
 
@@ -28,20 +31,32 @@ export function obterFornecedores() {
 
             FROM vendas
 
+            WHERE data_venda BETWEEN ? AND ?
+
+            ${filtro.sql}
+
             GROUP BY codigo_fornecedor, nome_fornecedor
 
             ORDER BY faturamento DESC
 
         `;
 
-        db.all(sql, [], (err, rows) => {
+        db.all(
 
-            if (err)
-                return reject(err);
+            sql,
 
-            resolve(rows);
+            [inicio, fim, ...filtro.params],
 
-        });
+            (err, rows) => {
+
+                if (err)
+                    return reject(err);
+
+                resolve(rows);
+
+            }
+
+        );
 
     });
 

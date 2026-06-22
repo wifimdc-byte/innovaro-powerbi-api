@@ -1,7 +1,7 @@
 import db from "./database.js";
 import { montarFiltroLoja } from "./filtroLoja.js";
 
-export function obterSetores(inicio, fim, loja) {
+export function obterProdutosQuantidade(inicio, fim, loja) {
 
     return new Promise((resolve, reject) => {
 
@@ -11,32 +11,27 @@ export function obterSetores(inicio, fim, loja) {
 
             SELECT
 
-                codigo_subgrupo,
+                codigo_produto,
 
-                nome_subgrupo,
+                nome_produto,
+
+                ROUND(SUM(quantidade),2) AS quantidade,
 
                 ROUND(SUM(total_item - desconto),2) AS faturamento,
 
-                COUNT(DISTINCT codigo_venda) AS pedidos,
-
-                ROUND(SUM(quantidade),2) AS itens,
-
-                ROUND(
-                    SUM(total_item - desconto) /
-                    COUNT(DISTINCT codigo_venda),
-                    2
-                ) AS ticket_medio
+                COUNT(DISTINCT codigo_venda) AS pedidos
 
             FROM vendas
 
             WHERE data_venda BETWEEN ? AND ?
+
             ${filtro.sql}
 
-            GROUP BY codigo_subgrupo, nome_subgrupo
+            GROUP BY codigo_produto, nome_produto
 
-            ORDER BY faturamento DESC
+            ORDER BY quantidade DESC
 
-            LIMIT 15
+            LIMIT 50
 
         `;
 

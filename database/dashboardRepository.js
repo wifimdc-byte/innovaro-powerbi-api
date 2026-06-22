@@ -1,18 +1,37 @@
 import db from "./database.js";
+import { montarFiltroLoja } from "./filtroLoja.js";
 
-export function obterDashboard() {
+export function obterDashboard(inicio, fim, loja) {
 
     return new Promise((resolve, reject) => {
 
-        const sql = `
+        const filtro = montarFiltroLoja(loja);
+
+        // Período anterior
+        const dataInicio = new Date(inicio);
+        const dataFim = new Date(fim);
+
+        const dias = Math.floor(
+            (dataFim - dataInicio) / (1000 * 60 * 60 * 24)
+        ) + 1;
+
+        const inicioAnterior = new Date(dataInicio);
+        inicioAnterior.setDate(inicioAnterior.getDate() - dias);
+
+        const fimAnterior = new Date(dataFim);
+        fimAnterior.setDate(fimAnterior.getDate() - dias);
+
+        const formatar = (d) => d.toISOString().split("T")[0];
+
+        const sqlAtual = `
 
             SELECT
 
                 COUNT(DISTINCT codigo_venda) AS pedidos,
 
-                ROUND(SUM(quantidade), 2) AS itens,
+                ROUND(SUM(quantidade),2) AS itens,
 
-                ROUND(SUM(total_item - desconto), 2) AS faturamento,
+                ROUND(SUM(total_item - desconto),2) AS faturamento,
 
                 ROUND(
                     SUM(total_item - desconto) /
@@ -20,23 +39,84 @@ export function obterDashboard() {
                     2
                 ) AS ticket_medio,
 
-                ROUND(SUM(desconto), 2) AS desconto_total,
+                ROUND(SUM(desconto),2) AS desconto_total,
 
-                ROUND(MAX(total_item - desconto), 2) AS maior_venda
+                ROUND(MAX(total_item - desconto),2) AS maior_venda
 
             FROM vendas
 
+            WHERE data_venda BETWEEN ? AND ?
+            ${filtro.sql}
+
         `;
 
-        db.get(sql, [], (err, row) => {
+        const sqlAnterior = `
 
-            if (err) {
-                return reject(err);
+            SELECT
+
+                ROUND(SUM(total_item - desconto),2) AS faturamento
+
+            FROM vendas
+
+            WHERE data_venda BETWEEN ? AND ?
+            ${filtro.sql}
+
+        `;
+
+        db.get(
+
+            sqlAtual,
+
+            [inicio, fim, ...filtro.params],
+
+            (err, atual) => {
+
+                if (err)
+                    return reject(err);
+
+                db.get(
+
+                    sqlAnterior,
+
+                    [
+                        formatar(inicioAnterior),
+                        formatar(fimAnterior),
+                        ...filtro.params
+                    ],
+
+                    (err2, anterior) => {
+
+                        if (err2)
+                            return reject(err2);
+
+                        const atualFat = Number(atual.faturamento || 0);
+                        const anteriorFat = Number(anterior.faturamento || 0);
+
+                        let crescimento = 0;
+
+                        if (anteriorFat > 0) {
+
+                            crescimento = (
+                                ((atualFat - anteriorFat) / anteriorFat) * 100
+                            );
+
+                        }
+
+                        atual.crescimento_faturamento = Number(
+                            crescimento.toFixed(2)
+                        );
+
+                        atual.faturamento_anterior = anteriorFat;
+
+                        resolve(atual);
+
+                    }
+
+                );
+
             }
 
-            resolve(row);
-
-        });
+        );
 
     });
 

@@ -1,15 +1,19 @@
 import db from "./database.js";
+import { montarFiltroLoja } from "./filtroLoja.js";
 
-export function obterVendasHora() {
+export function obterVendasHora(inicio, fim, loja) {
 
     return new Promise((resolve, reject) => {
 
+        const filtro = montarFiltroLoja(loja);
+
         const sql = `
+
             SELECT
 
                 hora_venda,
 
-                ROUND(SUM(total_item - desconto), 2) AS faturamento,
+                ROUND(SUM(total_item - desconto),2) AS faturamento,
 
                 COUNT(DISTINCT codigo_venda) AS pedidos,
 
@@ -17,19 +21,32 @@ export function obterVendasHora() {
 
             FROM vendas
 
+            WHERE data_venda BETWEEN ? AND ?
+
+            ${filtro.sql}
+
             GROUP BY hora_venda
 
             ORDER BY hora_venda
+
         `;
 
-        db.all(sql, [], (err, rows) => {
+        db.all(
 
-            if (err)
-                return reject(err);
+            sql,
 
-            resolve(rows);
+            [inicio, fim, ...filtro.params],
 
-        });
+            (err, rows) => {
+
+                if (err)
+                    return reject(err);
+
+                resolve(rows);
+
+            }
+
+        );
 
     });
 
