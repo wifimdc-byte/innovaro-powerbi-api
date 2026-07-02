@@ -6,7 +6,10 @@ import {
     criarUsuario,
     alterarSenha,
     alterarStatus,
-    excluirUsuario
+    excluirUsuario,
+    listarLojasUsuario,
+    salvarLojasUsuario
+
 
 } from "../database/usuariosRepository.js";
 
@@ -171,6 +174,74 @@ router.delete("/:id", async (req, res) => {
         await excluirUsuario(
 
             req.params.id
+
+        );
+
+        res.json({
+
+            sucesso: true
+
+        });
+
+    } catch (erro) {
+
+        res.status(500).json({
+
+            erro: erro.message
+
+        });
+
+    }
+
+});
+
+/*
+==========================================
+LISTAR LOJAS DO USUÁRIO
+==========================================
+*/
+
+router.get("/:id/lojas", async (req, res) => {
+
+    try {
+
+        const lojas = await listarLojasUsuario(
+
+            req.params.id
+
+        );
+
+        res.json(lojas);
+
+    } catch (erro) {
+
+        res.status(500).json({
+
+            erro: erro.message
+
+        });
+
+    }
+
+});
+
+/*
+==========================================
+SALVAR LOJAS DO USUÁRIO
+==========================================
+*/
+
+router.put("/:id/lojas", async (req, res) => {
+
+    try {
+
+        const { lojas } = req.body;
+
+        await salvarLojasUsuario(
+
+            req.params.id,
+
+            lojas
 
         );
 

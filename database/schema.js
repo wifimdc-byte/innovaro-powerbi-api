@@ -40,6 +40,30 @@ export function criarTabelas() {
             );
         `);
 
+        // =====================================================
+// PERMISSÃO DE LOJAS
+// =====================================================
+
+db.run(`
+    CREATE TABLE IF NOT EXISTS usuarios_lojas (
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        usuario_id INTEGER NOT NULL,
+
+        loja_id TEXT NOT NULL,
+
+        UNIQUE(usuario_id, loja_id),
+
+        FOREIGN KEY(usuario_id)
+            REFERENCES usuarios(id)
+            ON DELETE CASCADE
+
+    );
+`);
+
+
+
         db.get(
 
     "SELECT COUNT(*) AS total FROM usuarios",
@@ -265,6 +289,7 @@ export function criarTabelas() {
         db.run(`CREATE INDEX IF NOT EXISTS idx_numero_venda ON vendas(numero_venda);`);
 
         db.run(`CREATE INDEX IF NOT EXISTS idx_checkout ON vendas(codigo_checkout);`);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_usuario_loja ON usuarios_lojas(usuario_id);`);
 
         console.log("✅ Banco SQLite inicializado.");
         console.log("✅ Tabelas verificadas.");
@@ -274,3 +299,4 @@ export function criarTabelas() {
     });
 
 }
+

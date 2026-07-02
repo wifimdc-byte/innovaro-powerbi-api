@@ -1,7 +1,10 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 
-import { buscarUsuario } from "../database/usuariosRepository.js";
+import {
+    buscarUsuario,
+    listarLojasUsuario
+} from "../database/usuariosRepository.js";
 
 const router = express.Router();
 
@@ -59,13 +62,17 @@ router.post("/login", async (req, res) => {
 
         }
 
+        // Busca as lojas permitidas para o usuário
+        const lojas = await listarLojasUsuario(dados.id);
+
         const token = jwt.sign(
 
             {
 
                 id: dados.id,
                 usuario: dados.usuario,
-                nivel: dados.nivel
+                nivel: dados.nivel,
+                lojas
 
             },
 
@@ -89,7 +96,8 @@ router.post("/login", async (req, res) => {
 
                 id: dados.id,
                 usuario: dados.usuario,
-                nivel: dados.nivel
+                nivel: dados.nivel,
+                lojas
 
             }
 
