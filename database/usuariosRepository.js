@@ -16,6 +16,7 @@ export function buscarUsuario(usuario) {
                 usuario,
                 senha,
                 nivel,
+                loja,
                 ativo
             FROM usuarios
             WHERE usuario = ?
@@ -53,6 +54,7 @@ export function listarUsuarios() {
                 id,
                 usuario,
                 nivel,
+                loja,
                 ativo
             FROM usuarios
             ORDER BY usuario
@@ -79,7 +81,7 @@ export function listarUsuarios() {
 // CRIAR USUÁRIO
 // ===========================================
 
-export function criarUsuario(usuario, senha, nivel = "CONSULTA") {
+export function criarUsuario(usuario, senha, nivel = "CONSULTA", loja = "TODAS") {
 
     return new Promise((resolve, reject) => {
 
@@ -90,16 +92,18 @@ export function criarUsuario(usuario, senha, nivel = "CONSULTA") {
             (
                 usuario,
                 senha,
-                nivel
+                nivel,
+                loja
             )
-            VALUES (?,?,?)
+            VALUES (?,?,?,?)
             `,
 
             [
 
                 usuario,
                 senha,
-                nivel
+                nivel,
+                loja
 
             ],
 
@@ -226,119 +230,3 @@ export function excluirUsuario(id) {
 
 }
 
-// ===========================================
-// LISTAR LOJAS DO USUÁRIO
-// ===========================================
-
-export function listarLojasUsuario(usuarioId) {
-
-    return new Promise((resolve, reject) => {
-
-        db.all(
-
-            `
-            SELECT loja_id
-            FROM usuarios_lojas
-            WHERE usuario_id = ?
-            ORDER BY loja_id
-            `,
-
-            [usuarioId],
-
-            (err, rows) => {
-
-                if (err)
-                    return reject(err);
-
-                resolve(rows.map(x => x.loja_id));
-
-            }
-
-        );
-
-    });
-
-}
-
-// ===========================================
-// REMOVER TODAS AS LOJAS DO USUÁRIO
-// ===========================================
-
-export function removerLojasUsuario(usuarioId) {
-
-    return new Promise((resolve, reject) => {
-
-        db.run(
-
-            `
-            DELETE FROM usuarios_lojas
-            WHERE usuario_id = ?
-            `,
-
-            [usuarioId],
-
-            function(err){
-
-                if(err)
-                    return reject(err);
-
-                resolve();
-
-            }
-
-        );
-
-    });
-
-}
-
-// ===========================================
-// SALVAR LOJAS DO USUÁRIO
-// ===========================================
-
-export async function salvarLojasUsuario(usuarioId, lojas) {
-
-    await removerLojasUsuario(usuarioId);
-
-    if(!lojas || lojas.length === 0)
-        return;
-
-    for(const loja of lojas){
-
-        await new Promise((resolve, reject)=>{
-
-            db.run(
-
-                `
-                INSERT INTO usuarios_lojas
-                (
-                    usuario_id,
-                    loja_id
-                )
-                VALUES (?,?)
-                `,
-
-                [
-
-                    usuarioId,
-
-                    loja
-
-                ],
-
-                function(err){
-
-                    if(err)
-                        return reject(err);
-
-                    resolve();
-
-                }
-
-            );
-
-        });
-
-    }
-
-}
