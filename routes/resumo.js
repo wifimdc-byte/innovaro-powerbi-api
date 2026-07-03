@@ -11,9 +11,11 @@ import { obterStatus } from "../database/statusRepository.js";
 import { obterCnpjs } from "../database/cnpjRepository.js";
 import { obterProdutosQuantidade } from "../database/produtosQuantidadeRepository.js";
 
+import auth from "../middleware/auth.js";
+
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", auth, async (req, res) => {
 
     try {
 
@@ -21,7 +23,14 @@ router.get("/", async (req, res) => {
 
         const inicio = req.query.inicio || hoje;
         const fim = req.query.fim || hoje;
-        const loja = req.query.loja || "TODAS";
+        let loja = req.query.loja || "TODAS";
+
+        if (req.usuario.nivel !== "ADMIN") {
+            loja = req.usuario.loja;
+
+        }
+
+
 
         const [
 
@@ -90,7 +99,7 @@ router.get("/", async (req, res) => {
 
 });
 
-router.get("/lojas", async (req, res) => {
+router.get("/lojas", auth, async (req, res) => {
 
     try {
 
