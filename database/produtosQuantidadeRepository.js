@@ -19,7 +19,7 @@ export function obterProdutosQuantidade(inicio, fim, loja) {
 
                 ROUND(SUM(total_item - desconto),2) AS faturamento,
 
-                COUNT(DISTINCT codigo_venda) AS pedidos
+                COUNT(DISTINCT numero_venda) AS pedidos
 
             FROM vendas
 

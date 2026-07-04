@@ -27,7 +27,7 @@ export function obterDashboard(inicio, fim, loja) {
 
             SELECT
 
-                COUNT(DISTINCT codigo_venda) AS pedidos,
+                COUNT(DISTINCT numero_venda) AS pedidos,
 
                 ROUND(SUM(quantidade),2) AS itens,
 
@@ -35,7 +35,7 @@ export function obterDashboard(inicio, fim, loja) {
 
                 ROUND(
                     SUM(total_item - desconto) /
-                    COUNT(DISTINCT codigo_venda),
+                    COUNT(DISTINCT numero_venda),
                     2
                 ) AS ticket_medio,
 

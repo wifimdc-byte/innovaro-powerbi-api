@@ -15,7 +15,7 @@ export function obterVendasHora(inicio, fim, loja) {
 
                 ROUND(SUM(total_item - desconto),2) AS faturamento,
 
-                COUNT(DISTINCT codigo_venda) AS pedidos,
+                COUNT(DISTINCT numero_venda) AS pedidos,
 
                 SUM(quantidade) AS itens
 

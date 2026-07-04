@@ -15,13 +15,13 @@ export function obterLojas(inicio, fim, loja) {
 
                 ROUND(SUM(faturamento),2) AS faturamento,
 
-                COUNT(DISTINCT codigo_venda) AS pedidos,
+                COUNT(DISTINCT numero_venda) AS pedidos,
 
                 SUM(itens) AS itens,
 
                 ROUND(
                     SUM(faturamento) /
-                    COUNT(DISTINCT codigo_venda),
+                    COUNT(DISTINCT numero_venda),
                     2
                 ) AS ticket_medio
 
@@ -29,7 +29,7 @@ export function obterLojas(inicio, fim, loja) {
 
                 SELECT
 
-                    codigo_venda,
+                    numero_venda,
 
                     quantidade AS itens,
 
