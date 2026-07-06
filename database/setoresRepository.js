@@ -1,11 +1,13 @@
 import db from "./database.js";
 import { montarFiltroLoja } from "./filtroLoja.js";
+import { montarFiltroFornecedor } from "./filtroFornecedor.js";
 
-export function obterSetores(inicio, fim, loja) {
+export function obterSetores(inicio, fim, loja, fornecedor) {
 
     return new Promise((resolve, reject) => {
 
         const filtro = montarFiltroLoja(loja);
+        const filtroFornecedor = montarFiltroFornecedor(fornecedor);
 
         const sql = `
 
@@ -30,7 +32,9 @@ export function obterSetores(inicio, fim, loja) {
             FROM vendas
 
             WHERE data_venda BETWEEN ? AND ?
+
             ${filtro.sql}
+            ${filtroFornecedor.sql}
 
             GROUP BY codigo_subgrupo, nome_subgrupo
 
@@ -44,7 +48,14 @@ export function obterSetores(inicio, fim, loja) {
 
             sql,
 
-            [inicio, fim, ...filtro.params],
+            [
+
+                inicio,
+                fim,
+                ...filtro.params,
+                ...filtroFornecedor.params
+
+            ],
 
             (err, rows) => {
 

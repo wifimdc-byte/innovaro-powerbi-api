@@ -1,11 +1,13 @@
 import db from "./database.js";
 import { montarFiltroLoja } from "./filtroLoja.js";
+import { montarFiltroFornecedor } from "./filtroFornecedor.js";
 
-export function obterFornecedores(inicio, fim, loja) {
+export function obterFornecedores(inicio, fim, loja, fornecedor) {
 
     return new Promise((resolve, reject) => {
 
         const filtro = montarFiltroLoja(loja);
+        const filtroFornecedor = montarFiltroFornecedor(fornecedor);
 
         const sql = `
 
@@ -34,6 +36,7 @@ export function obterFornecedores(inicio, fim, loja) {
             WHERE data_venda BETWEEN ? AND ?
 
             ${filtro.sql}
+            ${filtroFornecedor.sql}
 
             GROUP BY codigo_fornecedor, nome_fornecedor
 
@@ -45,7 +48,14 @@ export function obterFornecedores(inicio, fim, loja) {
 
             sql,
 
-            [inicio, fim, ...filtro.params],
+            [
+
+                inicio,
+                fim,
+                ...filtro.params,
+                ...filtroFornecedor.params
+
+            ],
 
             (err, rows) => {
 
@@ -53,6 +63,56 @@ export function obterFornecedores(inicio, fim, loja) {
                     return reject(err);
 
                 resolve(rows);
+
+            }
+
+        );
+
+    });
+
+}
+
+export function listarFornecedores() {
+
+    return new Promise((resolve, reject) => {
+
+        db.all(
+
+            `
+
+            SELECT DISTINCT
+
+                codigo_fornecedor AS id,
+
+                nome_fornecedor AS nome
+
+            FROM vendas
+
+            WHERE nome_fornecedor IS NOT NULL
+
+            ORDER BY nome_fornecedor
+
+            `,
+
+            [],
+
+            (err, rows) => {
+
+                if (err)
+                    return reject(err);
+
+                resolve([
+
+                    {
+
+                        id: "TODOS",
+                        nome: "Todos os fornecedores"
+
+                    },
+
+                    ...rows
+
+                ]);
 
             }
 

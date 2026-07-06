@@ -6,7 +6,10 @@ import { obterLojas, listarLojas } from "../database/lojasRepository.js";
 import { obterSetores } from "../database/setoresRepository.js";
 import { obterVendedores } from "../database/vendedoresRepository.js";
 import { obterProdutos } from "../database/produtosRepository.js";
-import { obterFornecedores } from "../database/fornecedoresRepository.js";
+import {
+    obterFornecedores,
+    listarFornecedores
+} from "../database/fornecedoresRepository.js";
 import { obterStatus } from "../database/statusRepository.js";
 import { obterCnpjs } from "../database/cnpjRepository.js";
 import { obterProdutosQuantidade } from "../database/produtosQuantidadeRepository.js";
@@ -24,6 +27,7 @@ router.get("/", auth, async (req, res) => {
         const inicio = req.query.inicio || hoje;
         const fim = req.query.fim || hoje;
         let loja = req.query.loja || "TODAS";
+        const fornecedor = req.query.fornecedor || "TODOS";
 
         if (req.usuario.nivel !== "ADMIN") {
             loja = req.usuario.loja;
@@ -47,15 +51,15 @@ router.get("/", auth, async (req, res) => {
 
         ] = await Promise.all([
 
-            obterDashboard(inicio, fim, loja),
-            obterVendasHora(inicio, fim, loja),
-            obterLojas(inicio, fim, loja),
-            obterCnpjs(inicio, fim, loja),
-            obterSetores(inicio, fim, loja),
-            obterVendedores(inicio, fim, loja),
-            obterProdutos(inicio, fim, loja),
-            obterProdutosQuantidade(inicio, fim, loja),
-            obterFornecedores(inicio, fim, loja),
+            obterDashboard(inicio, fim, loja, fornecedor),
+            obterVendasHora(inicio, fim, loja, fornecedor),
+            obterLojas(inicio, fim, loja, fornecedor),
+            obterCnpjs(inicio, fim, loja, fornecedor),
+            obterSetores(inicio, fim, loja, fornecedor),
+            obterVendedores(inicio, fim, loja, fornecedor),
+            obterProdutos(inicio, fim, loja, fornecedor),
+            obterProdutosQuantidade(inicio, fim, loja, fornecedor),
+            obterFornecedores(inicio, fim, loja, fornecedor),
             obterStatus()
 
         ]);
@@ -106,6 +110,26 @@ router.get("/lojas", auth, async (req, res) => {
         const lojas = await listarLojas();
 
         res.json(lojas);
+
+    } catch (erro) {
+
+        res.status(500).json({
+
+            erro: erro.message
+
+        });
+
+    }
+
+});
+
+router.get("/fornecedores", auth, async (req, res) => {
+
+    try {
+
+        const fornecedores = await listarFornecedores();
+
+        res.json(fornecedores);
 
     } catch (erro) {
 

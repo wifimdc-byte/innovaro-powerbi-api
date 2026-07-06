@@ -1,11 +1,13 @@
 import db from "./database.js";
 import { montarFiltroLoja } from "./filtroLoja.js";
+import { montarFiltroFornecedor } from "./filtroFornecedor.js";
 
-export function obterDashboard(inicio, fim, loja) {
+export function obterDashboard(inicio, fim, loja, fornecedor) {
 
     return new Promise((resolve, reject) => {
 
         const filtro = montarFiltroLoja(loja);
+        const filtroFornecedor = montarFiltroFornecedor(fornecedor);
 
         // Período anterior
         const dataInicio = new Date(inicio);
@@ -47,6 +49,7 @@ export function obterDashboard(inicio, fim, loja) {
 
             WHERE data_venda BETWEEN ? AND ?
             ${filtro.sql}
+            ${filtroFornecedor.sql}
 
         `;
 
@@ -60,6 +63,7 @@ export function obterDashboard(inicio, fim, loja) {
 
             WHERE data_venda BETWEEN ? AND ?
             ${filtro.sql}
+            ${filtroFornecedor.sql}
 
         `;
 
@@ -67,7 +71,9 @@ export function obterDashboard(inicio, fim, loja) {
 
             sqlAtual,
 
-            [inicio, fim, ...filtro.params],
+            [inicio, fim, 
+                ...filtro.params,
+                ...filtroFornecedor.params],
 
             (err, atual) => {
 
@@ -81,7 +87,8 @@ export function obterDashboard(inicio, fim, loja) {
                     [
                         formatar(inicioAnterior),
                         formatar(fimAnterior),
-                        ...filtro.params
+                        ...filtro.params,
+                        ...filtroFornecedor.params
                     ],
 
                     (err2, anterior) => {
