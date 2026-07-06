@@ -1,32 +1,21 @@
-import { LOJAS } from "./lojasConfig.js";
+export function montarFiltroFornecedor(fornecedor) {
 
-export function montarFiltroLoja(loja) {
-
-    if (!loja || loja === "TODAS") {
+    if (!fornecedor || fornecedor === "TODOS") {
 
         return {
+
             sql: "",
             params: []
-        };
 
-    }
-
-    const codigos = LOJAS[loja];
-
-    if (!codigos) {
-
-        return {
-            sql: "",
-            params: []
         };
 
     }
 
     return {
 
-        sql: ` AND codigo_loja IN (${codigos.map(() => "?").join(",")}) `,
+        sql: " AND codigo_fornecedor = ? ",
 
-        params: codigos
+        params: [fornecedor]
 
     };
 
