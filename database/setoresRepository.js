@@ -19,6 +19,16 @@ export function obterSetores(inicio, fim, loja, fornecedor) {
 
                 ROUND(SUM(total_item - desconto),2) AS faturamento,
 
+                ROUND(
+
+                    SUM(total_item - desconto) * 100.0 /
+
+                    SUM(SUM(total_item - desconto)) OVER (),
+
+                    2
+
+                ) AS percentual,
+
                 COUNT(DISTINCT numero_venda) AS pedidos,
 
                 ROUND(SUM(quantidade),2) AS itens,
