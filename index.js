@@ -136,7 +136,7 @@ async function loopSincronizacao() {
         console.log("");
 
         await new Promise(resolve =>
-            setTimeout(resolve, 5 * 60 * 1000)
+            setTimeout(resolve, 10 * 60 * 1000)
         );
 
     }
