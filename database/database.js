@@ -32,8 +32,6 @@ if (process.env.DB_PATH) {
 
             const stat = fs.statSync(caminhoBanco);
 
-            // Se o arquivo estiver muito pequeno,
-            // provavelmente é um banco recém-criado e vazio.
             if (stat.size < 50000) {
 
                 copiarBanco = true;
@@ -83,6 +81,25 @@ const db = new sqlite3.Database(caminhoBanco, (err) => {
     } else {
 
         console.log("✅ Banco SQLite conectado.");
+
+        // ======================================================
+        // OTIMIZAÇÕES SQLITE
+        // ======================================================
+
+        db.serialize(() => {
+
+            db.run("PRAGMA journal_mode = WAL;");
+            db.run("PRAGMA synchronous = NORMAL;");
+            db.run("PRAGMA temp_store = MEMORY;");
+            db.run("PRAGMA cache_size = -50000;");
+            db.run("PRAGMA mmap_size = 268435456;");
+            db.run("PRAGMA busy_timeout = 30000;");
+            db.run("PRAGMA foreign_keys = ON;");
+            db.run("PRAGMA optimize;");
+
+        });
+
+        console.log("🚀 SQLite otimizado.");
 
     }
 
