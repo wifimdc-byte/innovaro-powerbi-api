@@ -35,33 +35,34 @@ router.get("/", auth, async (req, res) => {
         }
 
 
-const [
 
-    dashboard,
-    horas,
-    lojas,
-    cnpjs,
-    setores,
-    vendedores,
-    produtos,
-    produtosQuantidade,
-    fornecedores,
-    status
+        const [
 
-] = await Promise.all([
+            dashboard,
+            horas,
+            lojas,
+            cnpjs,
+            setores,
+            vendedores,
+            produtos,
+            produtosQuantidade,
+            fornecedores,
+            status
 
-    obterDashboard(inicio, fim, loja, fornecedor),
-    obterVendasHora(inicio, fim, loja, fornecedor),
-    obterLojas(inicio, fim, loja, fornecedor),
-    obterCnpjs(inicio, fim, loja, fornecedor),
-    obterSetores(inicio, fim, loja, fornecedor),
-    obterVendedores(inicio, fim, loja, fornecedor),
-    obterProdutos(inicio, fim, loja, fornecedor),
-    obterProdutosQuantidade(inicio, fim, loja, fornecedor),
-    obterFornecedores(inicio, fim, loja, fornecedor),
-    obterStatus()
+        ] = await Promise.all([
 
-]);
+            obterDashboard(inicio, fim, loja, fornecedor),
+            obterVendasHora(inicio, fim, loja, fornecedor),
+            obterLojas(inicio, fim, loja, fornecedor),
+            obterCnpjs(inicio, fim, loja, fornecedor),
+            obterSetores(inicio, fim, loja, fornecedor),
+            obterVendedores(inicio, fim, loja, fornecedor),
+            obterProdutos(inicio, fim, loja, fornecedor),
+            obterProdutosQuantidade(inicio, fim, loja, fornecedor),
+            obterFornecedores(inicio, fim, loja, fornecedor),
+            obterStatus()
+
+        ]);
 
         res.json({
 
