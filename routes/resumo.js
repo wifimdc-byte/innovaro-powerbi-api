@@ -36,33 +36,45 @@ router.get("/", auth, async (req, res) => {
 
 
 
-        const [
+console.time("Dashboard");
+const dashboard = await obterDashboard(inicio, fim, loja, fornecedor);
+console.timeEnd("Dashboard");
 
-            dashboard,
-            horas,
-            lojas,
-            cnpjs,
-            setores,
-            vendedores,
-            produtos,
-            produtosQuantidade,
-            fornecedores,
-            status
+console.time("Horas");
+const horas = await obterVendasHora(inicio, fim, loja, fornecedor);
+console.timeEnd("Horas");
 
-        ] = await Promise.all([
+console.time("Lojas");
+const lojas = await obterLojas(inicio, fim, loja, fornecedor);
+console.timeEnd("Lojas");
 
-            obterDashboard(inicio, fim, loja, fornecedor),
-            obterVendasHora(inicio, fim, loja, fornecedor),
-            obterLojas(inicio, fim, loja, fornecedor),
-            obterCnpjs(inicio, fim, loja, fornecedor),
-            obterSetores(inicio, fim, loja, fornecedor),
-            obterVendedores(inicio, fim, loja, fornecedor),
-            obterProdutos(inicio, fim, loja, fornecedor),
-            obterProdutosQuantidade(inicio, fim, loja, fornecedor),
-            obterFornecedores(inicio, fim, loja, fornecedor),
-            obterStatus()
+console.time("CNPJs");
+const cnpjs = await obterCnpjs(inicio, fim, loja, fornecedor);
+console.timeEnd("CNPJs");
 
-        ]);
+console.time("Setores");
+const setores = await obterSetores(inicio, fim, loja, fornecedor);
+console.timeEnd("Setores");
+
+console.time("Vendedores");
+const vendedores = await obterVendedores(inicio, fim, loja, fornecedor);
+console.timeEnd("Vendedores");
+
+console.time("Produtos");
+const produtos = await obterProdutos(inicio, fim, loja, fornecedor);
+console.timeEnd("Produtos");
+
+console.time("ProdutosQuantidade");
+const produtosQuantidade = await obterProdutosQuantidade(inicio, fim, loja, fornecedor);
+console.timeEnd("ProdutosQuantidade");
+
+console.time("Fornecedores");
+const fornecedores = await obterFornecedores(inicio, fim, loja, fornecedor);
+console.timeEnd("Fornecedores");
+
+console.time("Status");
+const status = await obterStatus();
+console.timeEnd("Status");
 
         res.json({
 
