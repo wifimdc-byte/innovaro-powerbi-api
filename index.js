@@ -17,6 +17,7 @@ import statusRouter from "./routes/status.js";
 import resumoRouter from "./routes/resumo.js";
 import authRouter from "./routes/auth.js";
 import usuariosRouter from "./routes/usuarios.js";
+import metasRouter from "./routes/metas.js";
 
 dotenv.config();
 
@@ -78,6 +79,7 @@ app.use("/status", statusRouter);
 app.use("/resumo", resumoRouter);
 app.use("/auth", authRouter);
 app.use("/usuarios", usuariosRouter);
+app.use("/metas", metasRouter);
 
 /*
 ==========================================

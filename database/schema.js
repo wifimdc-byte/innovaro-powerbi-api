@@ -42,6 +42,34 @@ export function criarTabelas() {
             );
         `);
 
+        // =====================================================
+// TABELA DE METAS
+// =====================================================
+
+db.run(`
+CREATE TABLE IF NOT EXISTS metas (
+
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    loja TEXT NOT NULL,
+
+    ano INTEGER NOT NULL,
+
+    mes INTEGER NOT NULL,
+
+    meta_mensal REAL NOT NULL DEFAULT 0,
+
+    abre_sabado INTEGER NOT NULL DEFAULT 1,
+
+    abre_domingo INTEGER NOT NULL DEFAULT 1,
+
+    feriados INTEGER NOT NULL DEFAULT 0,
+
+    UNIQUE(loja, ano, mes)
+
+     );
+`);
+
         db.get(
 
     "SELECT COUNT(*) AS total FROM usuarios",
