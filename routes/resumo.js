@@ -73,6 +73,74 @@ router.get("/", auth, async (req, res) => {
 
         ]);
 
+        const faturamento = Number(dashboard.faturamento || 0);
+
+metaDashboard.faturamento = faturamento;
+
+metaDashboard.atingimento =
+
+    metaDashboard.meta_mensal > 0
+
+        ? Number(
+
+            (
+
+                faturamento /
+
+                metaDashboard.meta_mensal
+
+            ).toFixed(4)
+
+        )
+
+        : 0;
+
+metaDashboard.faltante =
+
+    Math.max(
+
+        0,
+
+        metaDashboard.meta_mensal - faturamento
+
+    );
+
+metaDashboard.meta_esperada = Number(
+
+    (
+
+        metaDashboard.meta_diaria *
+
+        metaDashboard.dias_decorridos
+
+    ).toFixed(2)
+
+);
+
+const diasRestantes =
+
+    Math.max(
+
+        1,
+
+        metaDashboard.dias_uteis -
+
+        metaDashboard.dias_decorridos
+
+    );
+
+metaDashboard.necessario_por_dia = Number(
+
+    (
+
+        metaDashboard.faltante /
+
+        diasRestantes
+
+    ).toFixed(2)
+
+);
+
         res.json({
 
             sucesso: true,
