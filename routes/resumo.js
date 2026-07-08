@@ -13,6 +13,7 @@ import {
 import { obterStatus } from "../database/statusRepository.js";
 import { obterCnpjs } from "../database/cnpjRepository.js";
 import { obterProdutosQuantidade } from "../database/produtosQuantidadeRepository.js";
+import { obterMetaDashboard } from "../database/metaDashboardRepository.js";
 
 import auth from "../middleware/auth.js";
 
@@ -39,6 +40,7 @@ router.get("/", auth, async (req, res) => {
         const [
 
             dashboard,
+            metasDashboard,
             horas,
             lojas,
             cnpjs,
@@ -52,6 +54,13 @@ router.get("/", auth, async (req, res) => {
         ] = await Promise.all([
 
             obterDashboard(inicio, fim, loja, fornecedor),
+            obterMetaDashboard(
+
+               inicio,
+               fim,
+               loja
+
+            ),
             obterVendasHora(inicio, fim, loja, fornecedor),
             obterLojas(inicio, fim, loja, fornecedor),
             obterCnpjs(inicio, fim, loja, fornecedor),
@@ -76,6 +85,7 @@ router.get("/", auth, async (req, res) => {
             },
 
             dashboard,
+            metaDashboard,
             horas,
             lojas,
             cnpjs,
