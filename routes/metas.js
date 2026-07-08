@@ -3,7 +3,8 @@ import auth from "../middleware/auth.js";
 
 import {
     listarMetas,
-    salvarMeta
+    salvarMeta,
+    salvarMetas
 } from "../database/metasRepository.js";
 
 const router = express.Router();
@@ -40,7 +41,7 @@ router.get("/", auth, async (req, res) => {
 });
 
 // ======================================================
-// SALVAR META
+// SALVAR UMA META
 // ======================================================
 
 router.post("/", auth, async (req, res) => {
@@ -48,6 +49,36 @@ router.post("/", auth, async (req, res) => {
     try {
 
         await salvarMeta(req.body);
+
+        res.json({
+
+            sucesso: true
+
+        });
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        res.status(500).json({
+
+            erro: erro.message
+
+        });
+
+    }
+
+});
+
+// ======================================================
+// SALVAR TODAS AS METAS
+// ======================================================
+
+router.post("/salvar", auth, async (req, res) => {
+
+    try {
+
+        await salvarMetas(req.body);
 
         res.json({
 
