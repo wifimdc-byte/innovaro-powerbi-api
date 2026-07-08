@@ -40,7 +40,7 @@ router.get("/", auth, async (req, res) => {
         const [
 
             dashboard,
-            metasDashboard,
+            metaDashboard,
             horas,
             lojas,
             cnpjs,
