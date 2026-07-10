@@ -53,6 +53,8 @@ router.get("/", auth, async (req, res) => {
 
         ] = await Promise.all([
 
+            
+
             obterDashboard(inicio, fim, loja, fornecedor),
             obterMetaDashboard(
 
@@ -85,17 +87,17 @@ metaDashboard.atingimento =
 
             (
 
-                faturamento /
+                faturamento * 100 /
 
                 metaDashboard.meta_mensal
 
-            ).toFixed(4)
+            ).toFixed(2)
 
         )
 
         : 0;
 
-metaDashboard.faltante =
+metaDashboard.faltante = Number(
 
     Math.max(
 
@@ -103,31 +105,19 @@ metaDashboard.faltante =
 
         metaDashboard.meta_mensal - faturamento
 
-    );
-
-metaDashboard.meta_esperada = Number(
-
-    (
-
-        metaDashboard.meta_diaria *
-
-        metaDashboard.dias_decorridos
-
     ).toFixed(2)
 
 );
 
-const diasRestantes =
+const diasRestantes = Math.max(
 
-    Math.max(
+    1,
 
-        1,
+    metaDashboard.dias_uteis -
 
-        metaDashboard.dias_uteis -
+    metaDashboard.dias_decorridos
 
-        metaDashboard.dias_decorridos
-
-    );
+);
 
 metaDashboard.necessario_por_dia = Number(
 
@@ -140,6 +130,7 @@ metaDashboard.necessario_por_dia = Number(
     ).toFixed(2)
 
 );
+
 
         res.json({
 

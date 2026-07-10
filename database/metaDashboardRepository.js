@@ -1,22 +1,26 @@
 import db from "./database.js";
 
+function diasNoMes(ano, mes) {
+
+    return new Date(ano, mes, 0).getDate();
+
+}
+
 function calcularDiasUteis(ano, mes, abreSabado, abreDomingo, feriados) {
 
-    const ultimoDia = new Date(ano, mes, 0).getDate();
+    const totalDias = diasNoMes(ano, mes);
 
     let dias = 0;
 
-    for (let dia = 1; dia <= ultimoDia; dia++) {
+    for (let d = 1; d <= totalDias; d++) {
 
-        const data = new Date(ano, mes - 1, dia);
+        const data = new Date(ano, mes - 1, d);
 
         const semana = data.getDay();
 
-        // Domingo
         if (semana === 0 && !abreDomingo)
             continue;
 
-        // Sábado
         if (semana === 6 && !abreSabado)
             continue;
 
@@ -24,7 +28,7 @@ function calcularDiasUteis(ano, mes, abreSabado, abreDomingo, feriados) {
 
     }
 
-    dias -= feriados;
+    dias -= Number(feriados || 0);
 
     if (dias < 0)
         dias = 0;
@@ -33,47 +37,35 @@ function calcularDiasUteis(ano, mes, abreSabado, abreDomingo, feriados) {
 
 }
 
-function calcularDiasDecorridos(inicio, abreSabado, abreDomingo, feriados) {
+function calcularDiasDecorridos(ano, mes, abreSabado, abreDomingo, feriados) {
 
     const hoje = new Date();
 
-    const dataInicio = new Date(inicio);
+    let ultimoDia;
 
-    let ultimoDia = hoje;
-
-    // Se o período não for o mês atual,
-    // considera o último dia do mês informado.
     if (
 
-        hoje.getFullYear() !== dataInicio.getFullYear() ||
+        hoje.getFullYear() === ano &&
 
-        hoje.getMonth() !== dataInicio.getMonth()
+        hoje.getMonth() + 1 === mes
 
     ) {
 
-        ultimoDia = new Date(
+        ultimoDia = hoje.getDate();
 
-            dataInicio.getFullYear(),
+    }
 
-            dataInicio.getMonth() + 1,
+    else {
 
-            0
-
-        );
+        ultimoDia = diasNoMes(ano, mes);
 
     }
 
     let dias = 0;
 
-    for (
+    for (let d = 1; d <= ultimoDia; d++) {
 
-        let data = new Date(dataInicio);
-
-        data <= ultimoDia;
-
-        data.setDate(data.getDate() + 1)
-
-    ) {
+        const data = new Date(ano, mes - 1, d);
 
         const semana = data.getDay();
 
@@ -87,7 +79,7 @@ function calcularDiasDecorridos(inicio, abreSabado, abreDomingo, feriados) {
 
     }
 
-    dias -= feriados;
+    dias -= Number(feriados || 0);
 
     if (dias < 0)
         dias = 0;
@@ -96,197 +88,281 @@ function calcularDiasDecorridos(inicio, abreSabado, abreDomingo, feriados) {
 
 }
 
-export function obterMetaDashboard(inicio, fim, loja) {
+function calcularMeta(meta) {
+
+    const diasUteis = calcularDiasUteis(
+
+        meta.ano,
+
+        meta.mes,
+
+        meta.abre_sabado,
+
+        meta.abre_domingo,
+
+        meta.feriados
+
+    );
+
+    const diasDecorridos = calcularDiasDecorridos(
+
+        meta.ano,
+
+        meta.mes,
+
+        meta.abre_sabado,
+
+        meta.abre_domingo,
+
+        meta.feriados
+
+    );
+
+    const metaDiaria =
+
+        diasUteis > 0
+
+            ? meta.meta_mensal / diasUteis
+
+            : 0;
+
+    return {
+
+        ...meta,
+
+        dias_uteis: diasUteis,
+
+        dias_decorridos: diasDecorridos,
+
+        meta_diaria: metaDiaria
+
+    };
+
+}
+
+function buscarMetas(ano, mes) {
 
     return new Promise((resolve, reject) => {
 
-        const data = new Date(inicio);
+        db.all(
 
-        const ano = data.getFullYear();
-        const mes = data.getMonth() + 1;
+            `
 
-        let sql;
-        let params;
-
-        // =====================================================
-        // TODAS AS LOJAS
-        // =====================================================
-
-        if (loja === "TODAS") {
-
-            sql = `
-
-                SELECT
-
-                    ROUND(SUM(meta_mensal),2) AS meta_mensal,
-
-                    SUM(abre_sabado) AS abre_sabado,
-
-                    SUM(abre_domingo) AS abre_domingo,
-
-                    SUM(feriados) AS feriados
-
-                FROM metas
-
-                WHERE
-
-                    ano = ?
-
-                    AND mes = ?
-
-            `;
-
-            params = [
-
-                ano,
-                mes
-
-            ];
-
-        }
-
-        // =====================================================
-        // UMA LOJA
-        // =====================================================
-
-        else {
-
-            sql = `
-
-                SELECT
-
-                    meta_mensal,
-
-                    abre_sabado,
-
-                    abre_domingo,
-
-                    feriados
-
-                FROM metas
-
-                WHERE
-
-                    loja = ?
-
-                    AND ano = ?
-
-                    AND mes = ?
-
-            `;
-
-            params = [
+            SELECT
 
                 loja,
+
                 ano,
+
+                mes,
+
+                meta_mensal,
+
+                abre_sabado,
+
+                abre_domingo,
+
+                feriados
+
+            FROM metas
+
+            WHERE
+
+                ano = ?
+
+                AND mes = ?
+
+            ORDER BY loja
+
+            `,
+
+            [
+
+                ano,
+
                 mes
 
-            ];
+            ],
 
-        }
-
-        db.get(
-
-            sql,
-
-            params,
-
-            (err, meta) => {
+            (err, rows) => {
 
                 if (err)
                     return reject(err);
 
-                if (!meta || !meta.meta_mensal) {
+                resolve(
 
-                    return resolve({
+                    rows.map(meta => ({
 
-                        meta_mensal: 0,
+                        ...meta,
 
-                        meta_diaria: 0,
+                        meta_mensal: Number(meta.meta_mensal),
 
-                        dias_uteis: 0,
+                        abre_sabado: Number(meta.abre_sabado),
 
-                        dias_decorridos: 0,
+                        abre_domingo: Number(meta.abre_domingo),
 
-                        meta_esperada: 0,
+                        feriados: Number(meta.feriados)
 
-                        atingimento: 0,
-
-                        faltante: 0,
-
-                        necessario_por_dia: 0,
-
-                        abre_sabado: 0,
-
-                        abre_domingo: 0,
-
-                        feriados: 0
-
-                    });
-
-                }
-
-                const abreSabado = Number(meta.abre_sabado);
-                const abreDomingo = Number(meta.abre_domingo);
-                const feriados = Number(meta.feriados);
-
-                const diasUteis = calcularDiasUteis(
-
-                    ano,
-                    mes,
-                    abreSabado,
-                    abreDomingo,
-                    feriados
+                    }))
 
                 );
-
-                const diasDecorridos = calcularDiasDecorridos(
-
-                    inicio,
-                    abreSabado,
-                    abreDomingo,
-                    feriados
-
-                );
-
-                const metaMensal = Number(meta.meta_mensal);
-
-                const metaDiaria = diasUteis > 0
-
-                    ? metaMensal / diasUteis
-
-                    : 0;
-
-                resolve({
-
-                    meta_mensal: metaMensal,
-
-                    abre_sabado: abreSabado,
-
-                    abre_domingo: abreDomingo,
-
-                    feriados,
-
-                    dias_uteis: diasUteis,
-
-                    dias_decorridos: diasDecorridos,
-
-                    meta_diaria: Number(metaDiaria.toFixed(2)),
-
-                    meta_esperada: 0,
-
-                    atingimento: 0,
-
-                    faltante: 0,
-
-                    necessario_por_dia: 0
-
-                });
 
             }
 
         );
 
     });
+
+}
+
+export async function obterMetaDashboard(inicio, fim, loja) {
+
+    const data = new Date(inicio);
+
+    const ano = data.getFullYear();
+
+    const mes = data.getMonth() + 1;
+
+    const metas = await buscarMetas(ano, mes);
+
+    if (!metas.length) {
+
+        return {
+
+            meta_mensal: 0,
+
+            meta_diaria: 0,
+
+            dias_uteis: 0,
+
+            dias_decorridos: 0,
+
+            meta_esperada: 0,
+
+            faturamento: 0,
+
+            atingimento: 0,
+
+            faltante: 0,
+
+            necessario_por_dia: 0
+
+        };
+
+    }
+
+    // Continua na próxima parte...
+
+        let resultado;
+
+    // =====================================================
+    // TODAS AS LOJAS
+    // =====================================================
+
+    if (loja === "TODAS") {
+
+        resultado = {
+
+            meta_mensal: 0,
+
+            meta_diaria: 0,
+
+            dias_uteis: 0,
+
+            dias_decorridos: 0
+
+        };
+
+        for (const meta of metas) {
+
+            const calculada = calcularMeta(meta);
+
+            resultado.meta_mensal += calculada.meta_mensal;
+
+            resultado.meta_diaria += calculada.meta_diaria;
+
+            resultado.dias_uteis = Math.max(
+                resultado.dias_uteis,
+                calculada.dias_uteis
+            );
+
+            resultado.dias_decorridos = Math.max(
+                resultado.dias_decorridos,
+                calculada.dias_decorridos
+            );
+
+        }
+
+    }
+
+    // =====================================================
+    // UMA LOJA
+    // =====================================================
+
+    else {
+
+        const meta = metas.find(
+
+            m => m.loja === loja
+
+        );
+
+        if (!meta) {
+
+            return {
+
+                meta_mensal: 0,
+
+                meta_diaria: 0,
+
+                dias_uteis: 0,
+
+                dias_decorridos: 0,
+
+                meta_esperada: 0,
+
+                faturamento: 0,
+
+                atingimento: 0,
+
+                faltante: 0,
+
+                necessario_por_dia: 0
+
+            };
+
+        }
+
+        resultado = calcularMeta(meta);
+
+    }
+
+    // Continua na parte 4...
+
+        resultado.meta_mensal = Number(resultado.meta_mensal.toFixed(2));
+
+    resultado.meta_diaria = Number(resultado.meta_diaria.toFixed(2));
+
+    resultado.meta_esperada = Number(
+
+        (
+
+            resultado.meta_diaria *
+
+            resultado.dias_decorridos
+
+        ).toFixed(2)
+
+    );
+
+    resultado.faturamento = 0;
+
+    resultado.atingimento = 0;
+
+    resultado.faltante = resultado.meta_mensal;
+
+    resultado.necessario_por_dia = 0;
+
+    return resultado;
 
 }
