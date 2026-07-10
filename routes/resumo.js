@@ -131,6 +131,25 @@ metaDashboard.necessario_por_dia = Number(
 
 );
 
+// =====================================================
+// STATUS DA META
+// =====================================================
+
+if (metaDashboard.atingimento >= 100) {
+
+    metaDashboard.status = "ACIMA_META";
+
+} else if (metaDashboard.meta_esperada > 0 &&
+           metaDashboard.faturamento >= metaDashboard.meta_esperada) {
+
+    metaDashboard.status = "NO_RITMO";
+
+} else {
+
+    metaDashboard.status = "ABAIXO_META";
+
+}
+
 
         res.json({
 
