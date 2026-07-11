@@ -124,7 +124,7 @@ db.run(`
 
                 `INSERT INTO usuarios
                 (usuario, senha, nivel, loja)
-                VALUES (?,?,?)`,
+                VALUES (?,?,?,?)`,
 
                 [
 
