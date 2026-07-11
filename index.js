@@ -18,6 +18,7 @@ import resumoRouter from "./routes/resumo.js";
 import authRouter from "./routes/auth.js";
 import usuariosRouter from "./routes/usuarios.js";
 import metasRouter from "./routes/metas.js";
+import metasVendedoresRouter from "./routes/metasVendedores.js";
 
 dotenv.config();
 
@@ -80,6 +81,7 @@ app.use("/resumo", resumoRouter);
 app.use("/auth", authRouter);
 app.use("/usuarios", usuariosRouter);
 app.use("/metas", metasRouter);
+app.use("/metas-vendedores", metasVendedoresRouter);
 
 /*
 ==========================================

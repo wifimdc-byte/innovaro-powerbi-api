@@ -70,6 +70,41 @@ CREATE TABLE IF NOT EXISTS metas (
      );
 `);
 
+// =====================================================
+// TABELA DE METAS DOS VENDEDORES
+// =====================================================
+
+db.run(`
+
+    CREATE TABLE IF NOT EXISTS metas_vendedores (
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        ano INTEGER NOT NULL,
+
+        mes INTEGER NOT NULL,
+
+        codigo_loja TEXT NOT NULL,
+
+        codigo_vendedor INTEGER NOT NULL,
+
+        nome_vendedor TEXT NOT NULL,
+
+        meta REAL NOT NULL DEFAULT 0,
+
+        UNIQUE (
+
+            ano,
+            mes,
+            codigo_loja,
+            codigo_vendedor
+
+        )
+
+    );
+
+`);
+
         db.get(
 
     "SELECT COUNT(*) AS total FROM usuarios",
