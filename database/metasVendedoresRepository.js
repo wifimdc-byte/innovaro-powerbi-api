@@ -1,7 +1,7 @@
 import db from "./database.js";
 
 // =====================================================
-// LISTAR METAS DOS VENDEDORES
+// LISTAR METAS
 // =====================================================
 
 export function listarMetasVendedores(ano, mes, loja) {
@@ -14,41 +14,19 @@ export function listarMetasVendedores(ano, mes, loja) {
 
             SELECT
 
-                v.codigo_vendedor,
+                codigo_vendedor,
 
-                MAX(v.nome_vendedor) AS nome_vendedor,
+                meta
 
-                ? AS ano,
-
-                ? AS mes,
-
-                ? AS codigo_loja,
-
-                COALESCE(m.meta,0) AS meta
-
-            FROM vendas v
-
-            LEFT JOIN metas_vendedores m
-
-                ON m.codigo_vendedor = v.codigo_vendedor
-
-                AND m.codigo_loja = ?
-
-                AND m.ano = ?
-
-                AND m.mes = ?
+            FROM metas_vendedores
 
             WHERE
 
-                v.codigo_loja = ?
+                ano = ?
 
-            GROUP BY
+                AND mes = ?
 
-                v.codigo_vendedor
-
-            ORDER BY
-
-                nome_vendedor
+                AND codigo_loja = ?
 
             `,
 
@@ -56,12 +34,6 @@ export function listarMetasVendedores(ano, mes, loja) {
 
                 ano,
                 mes,
-                loja,
-
-                loja,
-                ano,
-                mes,
-
                 loja
 
             ],
@@ -82,7 +54,7 @@ export function listarMetasVendedores(ano, mes, loja) {
 }
 
 // =====================================================
-// SALVAR META
+// SALVAR
 // =====================================================
 
 export function salvarMetaVendedor(meta) {
@@ -96,10 +68,15 @@ export function salvarMetaVendedor(meta) {
             INSERT INTO metas_vendedores(
 
                 ano,
+
                 mes,
+
                 codigo_loja,
+
                 codigo_vendedor,
+
                 nome_vendedor,
+
                 meta
 
             )
@@ -109,8 +86,11 @@ export function salvarMetaVendedor(meta) {
             ON CONFLICT(
 
                 ano,
+
                 mes,
+
                 codigo_loja,
+
                 codigo_vendedor
 
             )

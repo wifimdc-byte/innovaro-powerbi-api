@@ -1,27 +1,33 @@
 import express from "express";
-import { obterVendedores } from "../database/vendedoresRepository.js";
+import auth from "../middleware/auth.js";
+
+import {
+    listarVendedores
+} from "../database/vendedoresRepository.js";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", auth, async (req, res) => {
 
     try {
 
-        const dados = await obterVendedores();
+        let loja = req.query.loja || "TODAS";
 
-        res.json({
+        if (req.usuario.nivel !== "ADMIN") {
 
-            sucesso: true,
+            loja = req.usuario.loja;
 
-            dados
+        }
 
-        });
+        const dados = await listarVendedores(loja);
+
+        res.json(dados);
 
     } catch (erro) {
 
-        res.status(500).json({
+        console.error(erro);
 
-            sucesso: false,
+        res.status(500).json({
 
             erro: erro.message
 

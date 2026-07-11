@@ -4,7 +4,7 @@ import { obterDashboard } from "../database/dashboardRepository.js";
 import { obterVendasHora } from "../database/horaRepository.js";
 import { obterLojas, listarLojas } from "../database/lojasRepository.js";
 import { obterSetores } from "../database/setoresRepository.js";
-import { obterVendedores } from "../database/vendedoresRepository.js";
+import { listarVendedores } from "../database/vendedoresRepository.js";
 import { obterProdutos } from "../database/produtosRepository.js";
 import {
     obterFornecedores,
