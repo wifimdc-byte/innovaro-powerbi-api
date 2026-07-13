@@ -9,36 +9,66 @@ export function obterVendedores(inicio, fim, loja, fornecedor) {
         const filtro = montarFiltroLoja(loja);
         const filtroFornecedor = montarFiltroFornecedor(fornecedor);
 
+        const data = new Date(inicio);
+
+        const ano = data.getFullYear();
+        const mes = data.getMonth() + 1;
+
         const sql = `
 
             SELECT
 
-                codigo_vendedor,
+                v.codigo_vendedor,
 
-                nome_vendedor,
+                v.nome_vendedor,
 
-                ROUND(SUM(total_item - desconto),2) AS faturamento,
+                ROUND(SUM(v.total_item - v.desconto),2) AS faturamento,
 
-                COUNT(DISTINCT numero_venda) AS pedidos,
+                COUNT(DISTINCT v.numero_venda) AS pedidos,
 
-                SUM(quantidade) AS itens,
+                SUM(v.quantidade) AS itens,
 
                 ROUND(
-                    SUM(total_item - desconto) /
-                    COUNT(DISTINCT numero_venda),
+
+                    SUM(v.total_item - v.desconto) /
+
+                    COUNT(DISTINCT v.numero_venda),
+
                     2
-                ) AS ticket_medio
 
-            FROM vendas
+                ) AS ticket_medio,
 
-            WHERE data_venda BETWEEN ? AND ?
+                COALESCE(MAX(m.meta),0) AS meta
 
-            ${filtro.sql}
-            ${filtroFornecedor.sql}
+            FROM vendas v
 
-            GROUP BY codigo_vendedor, nome_vendedor
+            LEFT JOIN metas_vendedores m
 
-            ORDER BY faturamento DESC
+                ON m.codigo_vendedor = v.codigo_vendedor
+
+                AND m.codigo_loja = ?
+
+                AND m.ano = ?
+
+                AND m.mes = ?
+
+            WHERE
+
+                v.data_venda BETWEEN ? AND ?
+
+                ${filtro.sql}
+
+                ${filtroFornecedor.sql}
+
+            GROUP BY
+
+                v.codigo_vendedor,
+
+                v.nome_vendedor
+
+            ORDER BY
+
+                faturamento DESC
 
         `;
 
@@ -48,9 +78,18 @@ export function obterVendedores(inicio, fim, loja, fornecedor) {
 
             [
 
+                loja,
+
+                ano,
+
+                mes,
+
                 inicio,
+
                 fim,
+
                 ...filtro.params,
+
                 ...filtroFornecedor.params
 
             ],
@@ -60,7 +99,29 @@ export function obterVendedores(inicio, fim, loja, fornecedor) {
                 if (err)
                     return reject(err);
 
-                resolve(rows);
+                resolve(rows.map(v => ({
+
+                    ...v,
+
+                    percentual_meta:
+
+                        Number(v.meta) > 0
+
+                            ? Number(
+
+                                (
+
+                                    Number(v.faturamento) * 100 /
+
+                                    Number(v.meta)
+
+                                ).toFixed(2)
+
+                            )
+
+                            : 0
+
+                })));
 
             }
 
