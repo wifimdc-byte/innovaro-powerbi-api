@@ -24,21 +24,34 @@ export function obterVendedores(inicio, fim, loja, fornecedor) {
                 SUM(quantidade) AS itens,
 
                 ROUND(
+
                     SUM(total_item - desconto) /
+
                     COUNT(DISTINCT numero_venda),
+
                     2
+
                 ) AS ticket_medio
 
             FROM vendas
 
-            WHERE data_venda BETWEEN ? AND ?
+            WHERE
 
-            ${filtro.sql}
-            ${filtroFornecedor.sql}
+                data_venda BETWEEN ? AND ?
 
-            GROUP BY codigo_vendedor, nome_vendedor
+                ${filtro.sql}
 
-            ORDER BY faturamento DESC
+                ${filtroFornecedor.sql}
+
+            GROUP BY
+
+                codigo_vendedor,
+
+                nome_vendedor
+
+            ORDER BY
+
+                faturamento DESC
 
         `;
 
@@ -88,9 +101,11 @@ export function listarVendedores(loja) {
 
             FROM vendas
 
-            WHERE 1=1
+            WHERE
 
-            ${filtro.sql}
+                1=1
+
+                ${filtro.sql}
 
             GROUP BY
 
