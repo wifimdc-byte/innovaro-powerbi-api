@@ -2,6 +2,8 @@ import express from "express";
 import jwt from "jsonwebtoken";
 
 import { buscarUsuario } from "../database/usuariosRepository.js";
+import { gerarAccessToken, gerarRefreshToken } from "../services/tokenService.js";
+import redis from "../src/config/redis.js";
 
 const router = express.Router();
 
@@ -59,32 +61,57 @@ router.post("/login", async (req, res) => {
 
         }
 
-        const token = jwt.sign(
+        // const token = jwt.sign(
+
+        //     {
+
+        //         id: dados.id,
+        //         usuario: dados.usuario,
+        //         nivel: dados.nivel,
+        //         loja: dados.loja
+
+        //     },
+
+        //     CHAVE,
+
+        //     {
+
+        //         expiresIn: "8h"
+
+        //     }
+
+        // );
+
+        const accessToken = gerarAccessToken({
+            id:dados.id,
+            usuario:dados.usuario,
+            nivel:dados.nivel,
+            loja:dados.loja
+        });
+
+        const refreshToken = gerarRefreshToken();
+
+        await redis.set(
+            `refresh:${refreshToken}`,
+
+            JSON.stringify({
+                id:dados.id,
+                usuario:dados.usuario,
+                nivel:dados.nivel,
+                loja:dados.loja
+            }),
 
             {
-
-                id: dados.id,
-                usuario: dados.usuario,
-                nivel: dados.nivel,
-                loja: dados.loja
-
-            },
-
-            CHAVE,
-
-            {
-
-                expiresIn: "8h"
-
+                EX:60*60*24*7
             }
-
         );
 
         res.json({
 
             sucesso: true,
 
-            token,
+            accessToken,
+            refreshToken,
 
             usuario: {
 

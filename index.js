@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import "./src/config/redis.js";
 
 import { criarTabelas } from "./database/schema.js";
 import { sincronizar } from "./services/sincronizador.js";
@@ -19,6 +20,7 @@ import authRouter from "./routes/auth.js";
 import usuariosRouter from "./routes/usuarios.js";
 import metasRouter from "./routes/metas.js";
 import metasVendedoresRouter from "./routes/metasVendedores.js";
+import refreshRoutes from "./routes/refresh.js";
 
 dotenv.config();
 
@@ -82,6 +84,7 @@ app.use("/auth", authRouter);
 app.use("/usuarios", usuariosRouter);
 app.use("/metas", metasRouter);
 app.use("/metas-vendedores", metasVendedoresRouter);
+app.use("/auth", refreshRoutes);
 
 /*
 ==========================================
