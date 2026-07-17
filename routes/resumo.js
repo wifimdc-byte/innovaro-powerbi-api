@@ -54,9 +54,19 @@ if (
         const fornecedor = req.query.fornecedor || "TODOS";
 
         if (req.usuario.nivel !== "ADMIN") {
-            loja = req.usuario.loja;
 
-        }
+    // Se o usuário consulta tem uma loja específica
+    if (req.usuario.loja && req.usuario.loja !== "TODAS") {
+        // Filtro não funciona → força a loja do usuário
+        loja = req.usuario.loja;
+    }
+
+    // Se o usuário consulta pode ver todas as lojas
+    else {
+        // Filtro funciona → usa o valor enviado pelo front-end
+        loja = req.query.loja || "TODAS";
+    }
+}
 
 
 
