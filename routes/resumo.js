@@ -27,6 +27,29 @@ router.get("/", auth, async (req, res) => {
 
         const inicio = req.query.inicio || hoje;
         const fim = req.query.fim || hoje;
+        const data = new Date(inicio);
+
+const ano = data.getFullYear();
+
+const mes = data.getMonth() + 1;
+
+const inicioMes = `${ano}-${String(mes).padStart(2, "0")}-01`;
+
+let fimMeta = fim;
+
+const hojeData = new Date();
+
+if (
+
+    hojeData.getFullYear() === ano &&
+
+    hojeData.getMonth() + 1 === mes
+
+) {
+
+    fimMeta = hojeData.toISOString().slice(0,10);
+
+}
         let loja = req.query.loja || "TODAS";
         const fornecedor = req.query.fornecedor || "TODOS";
 
@@ -85,7 +108,23 @@ router.get("/", auth, async (req, res) => {
 
         ]);
 
-        const faturamento = Number(dashboard.faturamento || 0);
+        const dashboardMeta = await obterDashboard(
+
+    inicioMes,
+
+    fimMeta,
+
+    loja,
+
+    fornecedor
+
+);
+
+        const faturamento = Number(
+
+    dashboardMeta.faturamento || 0
+
+);
 
 metaDashboard.faturamento = faturamento;
 
