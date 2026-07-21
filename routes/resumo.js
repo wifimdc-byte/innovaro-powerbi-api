@@ -30,16 +30,44 @@ router.get("/", auth, async (req, res) => {
         const fim = req.query.fim || hoje;
         const data = new Date(inicio);
 
-        const ano = data.getFullYear();
+const ano = data.getFullYear();
 
-        const mes = data.getMonth() + 1;
+const mes = data.getMonth() + 1;
+
+const inicioMes = `${ano}-${String(mes).padStart(2, "0")}-01`;
+
+let fimMeta = fim;
+
+const hojeData = new Date();
+
+if (
+
+    hojeData.getFullYear() === ano &&
+
+    hojeData.getMonth() + 1 === mes
+
+) {
+
+    fimMeta = hojeData.toISOString().slice(0,10);
+
+}
         let loja = req.query.loja || "TODAS";
         const fornecedor = req.query.fornecedor || "TODOS";
 
         if (req.usuario.nivel !== "ADMIN") {
-            loja = req.usuario.loja;
 
-        }
+    // Se o usuário consulta tem uma loja específica
+    if (req.usuario.loja && req.usuario.loja !== "TODAS") {
+        // Filtro não funciona → força a loja do usuário
+        loja = req.usuario.loja;
+    }
+
+    // Se o usuário consulta pode ver todas as lojas
+    else {
+        // Filtro funciona → usa o valor enviado pelo front-end
+        loja = req.query.loja || "TODAS";
+    }
+}
 
 
 
@@ -80,55 +108,23 @@ router.get("/", auth, async (req, res) => {
 
         ]);
 
-        const metasVendedores = await listarMetasVendedores(
+        const dashboardMeta = await obterDashboard(
 
-    ano,
+    inicioMes,
 
-    mes,
+    fimMeta,
 
-    loja
+    loja,
+
+    fornecedor
 
 );
 
-const vendedoresComMeta = vendedores.map((vendedor) => {
+        const faturamento = Number(
 
-    const meta = metasVendedores.find(
+    dashboardMeta.faturamento || 0
 
-        m => Number(m.codigo_vendedor) === Number(vendedor.codigo_vendedor)
-
-    );
-
-    const valorMeta = Number(meta?.meta || 0);
-
-    return {
-
-        ...vendedor,
-
-        meta: valorMeta,
-
-        percentual_meta:
-
-            valorMeta > 0
-
-                ? Number(
-
-                    (
-
-                        Number(vendedor.faturamento) * 100 /
-
-                        valorMeta
-
-                    ).toFixed(2)
-
-                )
-
-                : 0
-
-    };
-
-});
-
-        const faturamento = Number(dashboard.faturamento || 0);
+);
 
 metaDashboard.faturamento = faturamento;
 
