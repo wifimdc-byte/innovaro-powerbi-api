@@ -14,6 +14,7 @@ import { obterStatus } from "../database/statusRepository.js";
 import { obterCnpjs } from "../database/cnpjRepository.js";
 import { obterProdutosQuantidade } from "../database/produtosQuantidadeRepository.js";
 import { obterMetaDashboard } from "../database/metaDashboardRepository.js";
+import { listarMetasVendedores } from "../database/metasVendedoresRepository.js";
 
 import auth from "../middleware/auth.js";
 
@@ -27,6 +28,11 @@ router.get("/", auth, async (req, res) => {
 
         const inicio = req.query.inicio || hoje;
         const fim = req.query.fim || hoje;
+        const data = new Date(inicio);
+
+        const ano = data.getFullYear();
+
+        const mes = data.getMonth() + 1;
         let loja = req.query.loja || "TODAS";
         const fornecedor = req.query.fornecedor || "TODOS";
 
@@ -53,7 +59,6 @@ router.get("/", auth, async (req, res) => {
 
         ] = await Promise.all([
 
-            
 
             obterDashboard(inicio, fim, loja, fornecedor),
             obterMetaDashboard(
@@ -74,6 +79,54 @@ router.get("/", auth, async (req, res) => {
             obterStatus()
 
         ]);
+
+        const metasVendedores = await listarMetasVendedores(
+
+    ano,
+
+    mes,
+
+    loja
+
+);
+
+const vendedoresComMeta = vendedores.map((vendedor) => {
+
+    const meta = metasVendedores.find(
+
+        m => Number(m.codigo_vendedor) === Number(vendedor.codigo_vendedor)
+
+    );
+
+    const valorMeta = Number(meta?.meta || 0);
+
+    return {
+
+        ...vendedor,
+
+        meta: valorMeta,
+
+        percentual_meta:
+
+            valorMeta > 0
+
+                ? Number(
+
+                    (
+
+                        Number(vendedor.faturamento) * 100 /
+
+                        valorMeta
+
+                    ).toFixed(2)
+
+                )
+
+                : 0
+
+    };
+
+});
 
         const faturamento = Number(dashboard.faturamento || 0);
 
@@ -168,7 +221,7 @@ if (metaDashboard.atingimento >= 100) {
             lojas,
             cnpjs,
             setores,
-            vendedores,
+            vendedores: vendedoresComMeta,
             produtos,
             produtosQuantidade,
             fornecedores,
