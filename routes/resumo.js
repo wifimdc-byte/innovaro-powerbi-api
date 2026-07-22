@@ -120,6 +120,64 @@ if (
 
 );
 
+console.log({
+    ano,
+    mes,
+    loja
+});
+
+const metasVendedores = await listarMetasVendedores(
+
+    ano,
+
+    mes,
+
+    loja
+
+);
+
+console.log("METAS:", metasVendedores);
+
+const vendedoresComMeta = vendedores.map((vendedor) => {
+
+    const meta = metasVendedores.find(
+
+        m => Number(m.codigo_vendedor) === Number(vendedor.codigo_vendedor)
+
+    );
+
+    const valorMeta = Number(meta?.meta || 0);
+
+    const percentual =
+
+        valorMeta > 0
+
+            ? Number(
+
+                (
+
+                    Number(vendedor.faturamento) * 100 /
+
+                    valorMeta
+
+                ).toFixed(2)
+
+            )
+
+            : 0;
+
+    return {
+
+        ...vendedor,
+
+        meta: valorMeta,
+
+        percentual_meta: percentual
+
+    };
+
+});
+
         const faturamento = Number(
 
     dashboardMeta.faturamento || 0

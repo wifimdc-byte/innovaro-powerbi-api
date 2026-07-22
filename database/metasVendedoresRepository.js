@@ -8,11 +8,11 @@ export function listarMetasVendedores(ano, mes, loja) {
 
     return new Promise((resolve, reject) => {
 
-        db.all(
-
-            `
+        let sql = `
 
             SELECT
+
+                codigo_loja,
 
                 codigo_vendedor,
 
@@ -26,17 +26,32 @@ export function listarMetasVendedores(ano, mes, loja) {
 
                 AND mes = ?
 
+        `;
+
+        const params = [
+
+            ano,
+            mes
+
+        ];
+
+        if (loja !== "TODAS") {
+
+            sql += `
+
                 AND codigo_loja = ?
 
-            `,
+            `;
 
-            [
+            params.push(loja);
 
-                ano,
-                mes,
-                loja
+        }
 
-            ],
+        db.all(
+
+            sql,
+
+            params,
 
             (err, rows) => {
 
